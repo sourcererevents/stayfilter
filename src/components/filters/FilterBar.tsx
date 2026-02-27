@@ -45,8 +45,8 @@ export function FilterBar() {
           </div>
         </div>
 
-        {/* Second row: Guests + Price + Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4 items-end">
+        {/* Second row: Guests + Price */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
           <div className="space-y-3">
             <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
               Guests
@@ -59,7 +59,6 @@ export function FilterBar() {
             </label>
             <PriceRange />
           </div>
-          <FilterSheet />
         </div>
 
         <Separator />
@@ -134,16 +133,17 @@ export function FilterBar() {
         )}
       </div>
 
+      {/* All Filters + Category scroller */}
+      <div className="flex items-center gap-3">
+        <FilterSheet />
+        <div className="h-6 w-px bg-zinc-200 shrink-0 hidden sm:block" />
+        <div className="flex-1 min-w-0">
+          <CategoryScroller />
+        </div>
+      </div>
+
       {/* Active filter chips */}
       <FilterChips />
-
-      {/* Category scroller */}
-      <div className="space-y-2">
-        <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider px-1">
-          Airbnb Categories
-        </h3>
-        <CategoryScroller />
-      </div>
     </div>
   );
 }
