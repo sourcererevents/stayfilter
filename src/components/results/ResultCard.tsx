@@ -3,6 +3,7 @@
 import { Star, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ImageCarousel } from "./ImageCarousel";
+import { useFilterStore } from "@/stores/filterStore";
 import type { Listing } from "@/types/listing";
 
 interface ResultCardProps {
@@ -19,13 +20,28 @@ export function ResultCard({
   onMouseLeave,
 }: ResultCardProps) {
   const { name, city, roomType, images, price, rating, reviewCount, badges, listingUrl, source, crossListedOn, crossListedPrice, crossListedUrl } = listing;
+  const dates = useFilterStore((s) => s.dates);
+  const guests = useFilterStore((s) => s.guests);
+
+  // Build listing URL with dates and guest count so Airbnb shows accurate pricing
+  function buildListingUrl(): string {
+    const params: string[] = [];
+    if (dates.checkin) params.push(`check_in=${dates.checkin}`);
+    if (dates.checkout) params.push(`check_out=${dates.checkout}`);
+    if (guests.adults > 1) params.push(`adults=${guests.adults}`);
+    if (guests.children > 0) params.push(`children=${guests.children}`);
+    if (guests.infants > 0) params.push(`infants=${guests.infants}`);
+    if (params.length === 0) return listingUrl;
+    const separator = listingUrl.includes("?") ? "&" : "?";
+    return `${listingUrl}${separator}${params.join("&")}`;
+  }
 
   const isGuestFavorite = badges.includes("GUEST_FAVORITE") || badges.includes("TOP_X_GUEST_FAVORITE");
   const isSuperhost = badges.includes("SUPERHOST");
 
   return (
     <a
-      href={listingUrl}
+      href={buildListingUrl()}
       target="_blank"
       rel="noopener noreferrer"
       className={`

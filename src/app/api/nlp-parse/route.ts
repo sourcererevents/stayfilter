@@ -6,8 +6,13 @@ import {
   CATEGORY_IDS,
 } from "@/lib/nlp-schema";
 
+// Support both naming conventions (OPENAI_API_KEY or OpenAI_Key)
+function getApiKey(): string | undefined {
+  return process.env.OPENAI_API_KEY || process.env.OpenAI_Key;
+}
+
 function getOpenAIClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return new OpenAI({ apiKey: getApiKey() });
 }
 
 const SYSTEM_PROMPT = `You are a search filter parser for a vacation rental search tool (Airbnb/VRBO).
@@ -51,7 +56,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!getApiKey()) {
       return NextResponse.json(
         { error: "OpenAI API key not configured" },
         { status: 500 },
