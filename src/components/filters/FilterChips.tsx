@@ -19,8 +19,8 @@ function getFilterLabel(filterId: string): string | null {
 export function FilterChips() {
   const selectedFilters = useFilterStore((s) => s.selectedFilters);
   const toggleFilter = useFilterStore((s) => s.toggleFilter);
-  const selectedCategory = useFilterStore((s) => s.selectedCategory);
-  const setSelectedCategory = useFilterStore((s) => s.setSelectedCategory);
+  const selectedCategories = useFilterStore((s) => s.selectedCategories);
+  const toggleCategory = useFilterStore((s) => s.toggleCategory);
   const clearAllFilters = useFilterStore((s) => s.clearAllFilters);
   const roomType = useFilterStore((s) => s.roomType);
   const setRoomType = useFilterStore((s) => s.setRoomType);
@@ -88,17 +88,17 @@ export function FilterChips() {
     });
   }
 
-  // Category chip
-  if (selectedCategory) {
-    const cat = AIRBNB_CATEGORIES.find((c) => c.id === selectedCategory);
+  // Category chips (multi-select)
+  selectedCategories.forEach((catId) => {
+    const cat = AIRBNB_CATEGORIES.find((c) => c.id === catId);
     if (cat) {
       chips.push({
-        id: "category",
+        id: `category_${catId}`,
         label: `${cat.icon} ${cat.label}`,
-        onRemove: () => setSelectedCategory(null),
+        onRemove: () => toggleCategory(catId),
       });
     }
-  }
+  });
 
   // Filter chips
   selectedFilters.forEach((filterId) => {

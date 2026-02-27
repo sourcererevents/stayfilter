@@ -55,6 +55,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "popular",
     label: "Popular Filters",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "popular_amenities",
@@ -63,7 +65,7 @@ export const FILTER_GROUPS: FilterGroup[] = [
         filters: [
           { id: "pool", label: "Pool", airbnbId: 7, airbnbParam: "amenities[]=7" },
           { id: "hot_tub", label: "Hot Tub", airbnbId: 25, airbnbParam: "amenities[]=25" },
-          { id: "sauna", label: "Sauna", airbnbId: 154, airbnbParam: "amenities[]=154" },
+          { id: "sauna", label: "Sauna", airbnbId: 223, airbnbParam: "amenities[]=223" },
           { id: "fireplace", label: "Indoor Fireplace", airbnbId: 27, airbnbParam: "amenities[]=27" },
           { id: "wifi", label: "WiFi", airbnbId: 4, airbnbParam: "amenities[]=4" },
           { id: "kitchen", label: "Kitchen", airbnbId: 8, airbnbParam: "amenities[]=8" },
@@ -71,14 +73,17 @@ export const FILTER_GROUPS: FilterGroup[] = [
           { id: "washer", label: "Washer", airbnbId: 33, airbnbParam: "amenities[]=33" },
           { id: "dryer", label: "Dryer", airbnbId: 34, airbnbParam: "amenities[]=34" },
           { id: "free_parking", label: "Free Parking", airbnbId: 9, airbnbParam: "amenities[]=9" },
-          { id: "ev_charger", label: "EV Charger", airbnbId: 456, airbnbParam: "amenities[]=456" },
+          { id: "ev_charger", label: "EV Charger", airbnbId: 97, airbnbParam: "amenities[]=97" },
           { id: "gym", label: "Gym / Exercise Equipment", airbnbId: 15, airbnbParam: "amenities[]=15" },
           { id: "bbq_grill", label: "BBQ Grill", airbnbId: 99, airbnbParam: "amenities[]=99" },
-          { id: "fire_pit", label: "Fire Pit", airbnbId: 455, airbnbParam: "amenities[]=455" },
+          { id: "fire_pit", label: "Fire Pit", airbnbId: 219, airbnbParam: "amenities[]=219" },
           { id: "patio", label: "Patio or Balcony", airbnbId: 100, airbnbParam: "amenities[]=100" },
           { id: "garden", label: "Garden or Backyard", airbnbId: 101, airbnbParam: "amenities[]=101" },
           { id: "dedicated_workspace", label: "Dedicated Workspace", airbnbId: 47, airbnbParam: "amenities[]=47" },
-          { id: "tv", label: "TV", airbnbId: 1, airbnbParam: "amenities[]=1" },
+          { id: "tv", label: "TV", airbnbId: 58, airbnbParam: "amenities[]=58" },
+          { id: "king_bed", label: "King Bed", airbnbId: 1000, airbnbParam: "amenities[]=1000" },
+          { id: "breakfast", label: "Breakfast", airbnbId: 16, airbnbParam: "amenities[]=16" },
+          { id: "smoking_allowed", label: "Smoking Allowed", airbnbId: 11, airbnbParam: "amenities[]=11" },
         ],
       },
     ],
@@ -86,40 +91,19 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "property_type",
     label: "Property Type",
+    logic: "or" as const,
+    logicTip: "Shows ANY of the selected types",
     categories: [
       {
         id: "property_types",
         label: "Type of Place",
+        description: "For specific styles (Cabin, Barn, Treehouse), use the Category scroller",
         type: "checkbox",
         filters: [
-          { id: "pt_house", label: "House", airbnbId: 2, airbnbParam: "property_type_id[]=2" },
-          { id: "pt_apartment", label: "Apartment", airbnbId: 1, airbnbParam: "property_type_id[]=1" },
-          { id: "pt_guesthouse", label: "Guesthouse", airbnbId: 12, airbnbParam: "property_type_id[]=12" },
-          { id: "pt_hotel", label: "Hotel", airbnbId: 43, airbnbParam: "property_type_id[]=43" },
-          { id: "pt_bnb", label: "Bed & Breakfast", airbnbId: 3, airbnbParam: "property_type_id[]=3" },
-          { id: "pt_bungalow", label: "Bungalow", airbnbId: 38, airbnbParam: "property_type_id[]=38" },
-          { id: "pt_cabin", label: "Cabin", airbnbId: 4, airbnbParam: "property_type_id[]=4" },
-          { id: "pt_chalet", label: "Chalet", airbnbId: 11, airbnbParam: "property_type_id[]=11" },
-          { id: "pt_cottage", label: "Cottage", airbnbId: 6, airbnbParam: "property_type_id[]=6" },
-          { id: "pt_condo", label: "Condo", airbnbId: 36, airbnbParam: "property_type_id[]=36" },
-          { id: "pt_loft", label: "Loft", airbnbId: 14, airbnbParam: "property_type_id[]=14" },
-          { id: "pt_townhouse", label: "Townhouse", airbnbId: 21, airbnbParam: "property_type_id[]=21" },
-          { id: "pt_villa", label: "Villa", airbnbId: 22, airbnbParam: "property_type_id[]=22" },
-          { id: "pt_resort", label: "Resort", airbnbId: 42, airbnbParam: "property_type_id[]=42" },
-          { id: "pt_farm", label: "Farm Stay", airbnbId: 7, airbnbParam: "property_type_id[]=7" },
-          { id: "pt_boat", label: "Boat", airbnbId: 44, airbnbParam: "property_type_id[]=44" },
-          { id: "pt_camper", label: "Camper/RV", airbnbId: 5, airbnbParam: "property_type_id[]=5" },
-          { id: "pt_castle", label: "Castle", airbnbId: 35, airbnbParam: "property_type_id[]=35" },
-          { id: "pt_dome", label: "Dome", airbnbId: 57, airbnbParam: "property_type_id[]=57" },
-          { id: "pt_earthhouse", label: "Earth House", airbnbId: 53, airbnbParam: "property_type_id[]=53" },
-          { id: "pt_houseboat", label: "Houseboat", airbnbId: 46, airbnbParam: "property_type_id[]=46" },
-          { id: "pt_hut", label: "Hut", airbnbId: 45, airbnbParam: "property_type_id[]=45" },
-          { id: "pt_tent", label: "Tent", airbnbId: 19, airbnbParam: "property_type_id[]=19" },
-          { id: "pt_tipi", label: "Tipi", airbnbId: 20, airbnbParam: "property_type_id[]=20" },
-          { id: "pt_tiny_house", label: "Tiny House", airbnbId: 61, airbnbParam: "property_type_id[]=61" },
-          { id: "pt_treehouse", label: "Treehouse", airbnbId: 23, airbnbParam: "property_type_id[]=23" },
-          { id: "pt_windmill", label: "Windmill", airbnbId: 50, airbnbParam: "property_type_id[]=50" },
-          { id: "pt_yurt", label: "Yurt", airbnbId: 24, airbnbParam: "property_type_id[]=24" },
+          { id: "pt_house", label: "House", airbnbId: 1, airbnbParam: "l2_property_type_ids[]=1" },
+          { id: "pt_guesthouse", label: "Guesthouse", airbnbId: 2, airbnbParam: "l2_property_type_ids[]=2" },
+          { id: "pt_apartment", label: "Apartment", airbnbId: 3, airbnbParam: "l2_property_type_ids[]=3" },
+          { id: "pt_hotel", label: "Hotel", airbnbId: 4, airbnbParam: "l2_property_type_ids[]=4" },
         ],
       },
     ],
@@ -127,6 +111,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "room_features",
     label: "Rooms & Spaces",
+    logic: "or" as const,
+    logicTip: "Shows ANY of the selected room types",
     categories: [
       {
         id: "room_type",
@@ -145,6 +131,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "bathroom",
     label: "Bathroom",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "bathroom_amenities",
@@ -168,6 +156,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "bedroom_laundry",
     label: "Bedroom & Laundry",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "bedroom_amenities",
@@ -191,6 +181,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "kitchen",
     label: "Kitchen & Dining",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "kitchen_amenities",
@@ -225,6 +217,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "entertainment",
     label: "Entertainment",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "entertainment_amenities",
@@ -247,23 +241,25 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "outdoor",
     label: "Outdoor & Views",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "outdoor_amenities",
         label: "Outdoor Amenities",
         type: "checkbox",
         filters: [
-          { id: "beach_essentials", label: "Beach Essentials", airbnbId: 143, airbnbParam: "amenities[]=143" },
-          { id: "bikes", label: "Bikes", airbnbId: 145, airbnbParam: "amenities[]=145" },
-          { id: "boat_slip", label: "Boat Slip", airbnbId: 491, airbnbParam: "amenities[]=491" },
-          { id: "hammock", label: "Hammock", airbnbId: 497, airbnbParam: "amenities[]=497" },
-          { id: "kayak", label: "Kayak", airbnbId: 503, airbnbParam: "amenities[]=503" },
-          { id: "outdoor_dining", label: "Outdoor Dining Area", airbnbId: 207, airbnbParam: "amenities[]=207" },
-          { id: "outdoor_furniture", label: "Outdoor Furniture", airbnbId: 209, airbnbParam: "amenities[]=209" },
-          { id: "outdoor_kitchen", label: "Outdoor Kitchen", airbnbId: 509, airbnbParam: "amenities[]=509" },
-          { id: "ski_in_out", label: "Ski-in/Ski-out", airbnbId: 222, airbnbParam: "amenities[]=222" },
-          { id: "sun_loungers", label: "Sun Loungers", airbnbId: 233, airbnbParam: "amenities[]=233" },
-          { id: "waterfront", label: "Waterfront", airbnbId: 453, airbnbParam: "amenities[]=453" },
+          { id: "beach_essentials", label: "Beach Essentials", airbnbId: 102, airbnbParam: "amenities[]=102" },
+          { id: "bikes", label: "Bikes", airbnbId: 201, airbnbParam: "amenities[]=201" },
+          { id: "boat_slip", label: "Boat Slip", airbnbId: 664, airbnbParam: "amenities[]=664" },
+          { id: "hammock", label: "Hammock", airbnbId: 153, airbnbParam: "amenities[]=153" },
+          { id: "kayak", label: "Kayak", airbnbId: 172, airbnbParam: "amenities[]=172" },
+          { id: "outdoor_dining", label: "Outdoor Dining Area", airbnbId: 179, airbnbParam: "amenities[]=179" },
+          { id: "outdoor_furniture", label: "Outdoor Furniture", airbnbId: 280, airbnbParam: "amenities[]=280" },
+          { id: "outdoor_kitchen", label: "Outdoor Kitchen", airbnbId: 184, airbnbParam: "amenities[]=184" },
+          { id: "ski_in_out", label: "Ski-in/Ski-out", airbnbId: 135, airbnbParam: "kg_and_tags[]=Tag:681" },
+          { id: "sun_loungers", label: "Sun Loungers", airbnbId: 248, airbnbParam: "amenities[]=248" },
+          { id: "waterfront", label: "Waterfront", airbnbId: 132, airbnbParam: "kg_and_tags[]=Tag:686" },
         ],
       },
     ],
@@ -271,6 +267,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "heating_cooling",
     label: "Heating & Cooling",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "climate_amenities",
@@ -287,6 +285,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "safety",
     label: "Home Safety",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "safety_amenities",
@@ -304,6 +304,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "family",
     label: "Family & Children",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "family_amenities",
@@ -318,7 +320,7 @@ export const FILTER_GROUPS: FilterGroup[] = [
           { id: "changing_table", label: "Changing Table", airbnbId: 63, airbnbParam: "amenities[]=63" },
           { id: "childrens_books", label: "Children's Books & Toys", airbnbId: 66, airbnbParam: "amenities[]=66" },
           { id: "childrens_dinnerware", label: "Children's Dinnerware", airbnbId: 74, airbnbParam: "amenities[]=74" },
-          { id: "crib", label: "Crib", airbnbId: 71, airbnbParam: "amenities[]=71" },
+          { id: "crib", label: "Crib", airbnbId: 286, airbnbParam: "amenities[]=286" },
           { id: "fireplace_guards", label: "Fireplace Guards", airbnbId: 69, airbnbParam: "amenities[]=69" },
           { id: "high_chair", label: "High Chair", airbnbId: 64, airbnbParam: "amenities[]=64" },
           { id: "outlet_covers", label: "Outlet Covers", airbnbId: 60, airbnbParam: "amenities[]=60" },
@@ -332,19 +334,20 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "parking",
     label: "Parking & Facilities",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "parking_amenities",
         label: "Parking & Facilities",
         type: "checkbox",
         filters: [
-          { id: "paid_parking_on", label: "Paid Parking on Premises", airbnbId: 10, airbnbParam: "amenities[]=10" },
-          { id: "paid_parking_off", label: "Paid Parking off Premises", airbnbId: 140, airbnbParam: "amenities[]=140" },
-          { id: "free_street_parking", label: "Free Street Parking", airbnbId: 141, airbnbParam: "amenities[]=141" },
+          { id: "paid_parking_on", label: "Paid Parking on Premises", airbnbId: 287, airbnbParam: "amenities[]=287" },
+          { id: "paid_parking_off", label: "Paid Parking off Premises", airbnbId: 10, airbnbParam: "amenities[]=10" },
+          { id: "free_street_parking", label: "Free Street Parking", airbnbId: 23, airbnbParam: "amenities[]=23" },
           { id: "elevator", label: "Elevator", airbnbId: 21, airbnbParam: "amenities[]=21" },
-          { id: "single_level", label: "Single Level Home", airbnbId: 292, airbnbParam: "amenities[]=292" },
-          { id: "private_entrance", label: "Private Entrance", airbnbId: 12, airbnbParam: "amenities[]=12" },
-          { id: "lockbox", label: "Lockbox", airbnbId: 51, airbnbParam: "amenities[]=51" },
+          { id: "single_level", label: "Single Level Home", airbnbId: 98, airbnbParam: "amenities[]=98" },
+          { id: "private_entrance", label: "Private Entrance", airbnbId: 57, airbnbParam: "amenities[]=57" },
         ],
       },
     ],
@@ -352,6 +355,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "accessibility",
     label: "Accessibility",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "accessibility_features",
@@ -374,6 +379,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "booking",
     label: "Booking Options",
+    logic: "and" as const,
+    logicTip: "All selected options must be satisfied",
     categories: [
       {
         id: "booking_options",
@@ -381,11 +388,11 @@ export const FILTER_GROUPS: FilterGroup[] = [
         type: "checkbox",
         filters: [
           { id: "superhost", label: "Superhost", airbnbParam: "superhost=true" },
-          { id: "instant_book", label: "Instant Book", airbnbParam: "instant_book=true" },
-          { id: "self_checkin", label: "Self Check-in", airbnbParam: "self_checkin=true" },
+          { id: "instant_book", label: "Instant Book", airbnbParam: "ib=true" },
+          { id: "self_checkin", label: "Self Check-in", airbnbId: 51, airbnbParam: "amenities[]=51" },
           { id: "flexible_cancel", label: "Free Cancellation", airbnbParam: "flexible_cancellation=true" },
-          { id: "airbnb_plus", label: "Airbnb Plus", airbnbParam: "airbnb_plus=true" },
-          { id: "airbnb_luxe", label: "Airbnb Luxe", airbnbParam: "airbnb_luxe=true" },
+          { id: "allows_pets", label: "Allows Pets", airbnbParam: "pets=true" },
+          { id: "guest_favorite", label: "Guest Favorite", airbnbParam: "guest_favorite=true" },
         ],
       },
     ],
@@ -393,6 +400,8 @@ export const FILTER_GROUPS: FilterGroup[] = [
   {
     id: "internet",
     label: "Internet & Office",
+    logic: "and" as const,
+    logicTip: "Listing must have ALL selected amenities",
     categories: [
       {
         id: "internet_amenities",

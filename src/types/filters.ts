@@ -20,10 +20,18 @@ export interface FilterCategory {
   exclusive?: boolean; // Only one can be selected (radio behavior)
 }
 
+export type FilterLogic = "and" | "or";
+
 export interface FilterGroup {
   id: string;
   label: string;
   categories: FilterCategory[];
+  /** How Airbnb combines multiple selections in this group.
+   *  "or" = show listings matching ANY selected (e.g. property types)
+   *  "and" = show listings matching ALL selected (e.g. amenities) */
+  logic: FilterLogic;
+  /** Short tip shown in the UI about how this group behaves */
+  logicTip?: string;
 }
 
 export interface LocationState {

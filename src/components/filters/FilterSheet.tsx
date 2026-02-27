@@ -15,12 +15,22 @@ import { Accordion } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { FILTER_GROUPS, TOTAL_FILTER_COUNT } from "@/data/filters";
+import { FILTER_GROUPS, AIRBNB_CATEGORIES, TOTAL_FILTER_COUNT } from "@/data/filters";
 import { FilterSection } from "./FilterSection";
 import { RoomCounts } from "./RoomCounts";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUrlBuilder } from "@/hooks/useUrlBuilder";
 import type { FilterOption } from "@/types/filters";
+
+function getFilterLabel(filterId: string): string | null {
+  for (const group of FILTER_GROUPS) {
+    for (const category of group.categories) {
+      const found = category.filters.find((f) => f.id === filterId);
+      if (found) return found.label;
+    }
+  }
+  return null;
+}
 
 export function FilterSheet() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,7 +39,54 @@ export function FilterSheet() {
   const clearAllFilters = useFilterStore((s) => s.clearAllFilters);
   const selectedFilters = useFilterStore((s) => s.selectedFilters);
   const toggleFilter = useFilterStore((s) => s.toggleFilter);
+  const selectedCategories = useFilterStore((s) => s.selectedCategories);
+  const toggleCategory = useFilterStore((s) => s.toggleCategory);
+  const roomType = useFilterStore((s) => s.roomType);
+  const setRoomType = useFilterStore((s) => s.setRoomType);
+  const minBedrooms = useFilterStore((s) => s.minBedrooms);
+  const minBeds = useFilterStore((s) => s.minBeds);
+  const minBathrooms = useFilterStore((s) => s.minBathrooms);
+  const setMinBedrooms = useFilterStore((s) => s.setMinBedrooms);
+  const setMinBeds = useFilterStore((s) => s.setMinBeds);
+  const setMinBathrooms = useFilterStore((s) => s.setMinBathrooms);
+  const priceRange = useFilterStore((s) => s.priceRange);
+  const setPriceRange = useFilterStore((s) => s.setPriceRange);
   const { buildAirbnbUrl, buildVrboUrl } = useUrlBuilder();
+
+  // Build active chips list
+  const chips: { id: string; label: string; onRemove: () => void }[] = [];
+
+  if (priceRange.min !== null || priceRange.max !== null) {
+    const label =
+      priceRange.min !== null && priceRange.max !== null
+        ? `$${priceRange.min}–$${priceRange.max}/night`
+        : priceRange.min !== null
+          ? `$${priceRange.min}+ /night`
+          : `Up to $${priceRange.max}/night`;
+    chips.push({ id: "price", label, onRemove: () => setPriceRange({ min: null, max: null }) });
+  }
+
+  if (roomType) {
+    const labels: Record<string, string> = {
+      rt_entire: "Entire Place", rt_private: "Private Room",
+      rt_shared: "Shared Room", rt_hotel: "Hotel Room",
+    };
+    chips.push({ id: "roomType", label: labels[roomType] || roomType, onRemove: () => setRoomType(null) });
+  }
+
+  if (minBedrooms > 0) chips.push({ id: "bedrooms", label: `${minBedrooms}+ Bedrooms`, onRemove: () => setMinBedrooms(0) });
+  if (minBeds > 0) chips.push({ id: "beds", label: `${minBeds}+ Beds`, onRemove: () => setMinBeds(0) });
+  if (minBathrooms > 0) chips.push({ id: "baths", label: `${minBathrooms}+ Bathrooms`, onRemove: () => setMinBathrooms(0) });
+
+  selectedCategories.forEach((catId) => {
+    const cat = AIRBNB_CATEGORIES.find((c) => c.id === catId);
+    if (cat) chips.push({ id: `category_${catId}`, label: `${cat.icon} ${cat.label}`, onRemove: () => toggleCategory(catId) });
+  });
+
+  selectedFilters.forEach((filterId) => {
+    const label = getFilterLabel(filterId);
+    if (label) chips.push({ id: filterId, label, onRemove: () => toggleFilter(filterId) });
+  });
 
   // Search through all filters
   const searchResults: { filter: FilterOption; groupLabel: string }[] = [];
@@ -104,6 +161,28 @@ export function FilterSheet() {
               </button>
             )}
           </div>
+
+          {/* Active filter chips inside the panel */}
+          {chips.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider mr-1">Active:</span>
+              {chips.map((chip) => (
+                <Badge
+                  key={chip.id}
+                  variant="secondary"
+                  className="bg-zinc-100 text-zinc-700 border border-zinc-200 pl-2 pr-1 py-0.5 text-[11px] font-medium gap-1 hover:bg-zinc-200 transition-colors"
+                >
+                  {chip.label}
+                  <button
+                    onClick={chip.onRemove}
+                    className="ml-0.5 hover:text-zinc-900 rounded-full"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto min-h-0">
@@ -166,6 +245,8 @@ export function FilterSheet() {
                         key={category.id}
                         category={category}
                         groupLabel={group.label}
+                        logic={group.logic}
+                        logicTip={group.logicTip}
                       />
                     )),
                   )}

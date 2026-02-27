@@ -19,8 +19,8 @@ interface FilterStore {
   minBeds: number;
   minBathrooms: number;
 
-  // Category tag (Airbnb scrolling categories)
-  selectedCategory: string | null;
+  // Category tags (Airbnb categories — multi-select OR logic)
+  selectedCategories: Set<string>;
 
   // Actions
   setLocation: (location: LocationState) => void;
@@ -32,7 +32,8 @@ interface FilterStore {
   setMinBedrooms: (count: number) => void;
   setMinBeds: (count: number) => void;
   setMinBathrooms: (count: number) => void;
-  setSelectedCategory: (categoryId: string | null) => void;
+  toggleCategory: (categoryId: string) => void;
+  clearCategories: () => void;
   clearAllFilters: () => void;
   clearCategory: (filterIds: string[]) => void;
   getActiveFilterCount: () => number;
@@ -53,7 +54,7 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
   minBedrooms: 0,
   minBeds: 0,
   minBathrooms: 0,
-  selectedCategory: null,
+  selectedCategories: new Set<string>(),
 
   setLocation: (location) => set({ location }),
 
@@ -82,7 +83,18 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
   setMinBeds: (count) => set({ minBeds: count }),
   setMinBathrooms: (count) => set({ minBathrooms: count }),
 
-  setSelectedCategory: (categoryId) => set({ selectedCategory: categoryId }),
+  toggleCategory: (categoryId) =>
+    set((state) => {
+      const next = new Set(state.selectedCategories);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+      return { selectedCategories: next };
+    }),
+
+  clearCategories: () => set({ selectedCategories: new Set<string>() }),
 
   clearAllFilters: () =>
     set({
@@ -95,7 +107,7 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
       guests: initialGuests,
       dates: initialDates,
       location: initialLocation,
-      selectedCategory: null,
+      selectedCategories: new Set<string>(),
     }),
 
   clearCategory: (filterIds) =>
@@ -113,7 +125,7 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
     if (state.minBeds > 0) count++;
     if (state.minBathrooms > 0) count++;
     if (state.priceRange.min !== null || state.priceRange.max !== null) count++;
-    if (state.selectedCategory) count++;
+    count += state.selectedCategories.size;
     return count;
   },
 }));

@@ -17,8 +17,12 @@ export function useUrlBuilder() {
 
   function buildAirbnbUrl(): string {
     const location = store.location.query || "anywhere";
-    const encodedLocation = encodeURIComponent(location).replace(/%20/g, "-");
-    const base = `https://www.airbnb.com/s/${encodedLocation}/homes`;
+    // Airbnb URL format: commas become "--", spaces become "-"
+    // e.g. "British Columbia, Canada" → "British-Columbia--Canada"
+    const slug = location
+      .replace(/,\s*/g, "--") // ", " or "," → "--"
+      .replace(/\s+/g, "-");  // spaces → "-"
+    const base = `https://www.airbnb.com/s/${encodeURIComponent(slug)}/homes`;
     const params: string[] = [];
 
     // Dates
@@ -40,11 +44,11 @@ export function useUrlBuilder() {
     if (store.minBeds > 0) params.push(`min_beds=${store.minBeds}`);
     if (store.minBathrooms > 0) params.push(`min_bathrooms=${store.minBathrooms}`);
 
-    // Category tag
-    if (store.selectedCategory) {
-      const cat = AIRBNB_CATEGORIES.find((c) => c.id === store.selectedCategory);
+    // Category tags (multiple = OR logic)
+    store.selectedCategories.forEach((catId) => {
+      const cat = AIRBNB_CATEGORIES.find((c) => c.id === catId);
       if (cat) params.push(`category_tag=${cat.tag}`);
-    }
+    });
 
     // All selected filters — add their airbnbParam
     store.selectedFilters.forEach((filterId) => {
@@ -117,10 +121,10 @@ export function useUrlBuilder() {
       const option = findFilterOption(filterId);
       if (option) labels.push(option.label);
     });
-    if (store.selectedCategory) {
-      const cat = AIRBNB_CATEGORIES.find((c) => c.id === store.selectedCategory);
+    store.selectedCategories.forEach((catId) => {
+      const cat = AIRBNB_CATEGORIES.find((c) => c.id === catId);
       if (cat) labels.push(cat.label);
-    }
+    });
     return labels;
   }
 
