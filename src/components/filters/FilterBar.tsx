@@ -137,7 +137,12 @@ export function FilterBar() {
       <FilterSheet />
 
       {/* Category scroller */}
-      <CategoryScroller />
+      <div className="space-y-2">
+        <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider px-1">
+          Airbnb Categories
+        </h3>
+        <CategoryScroller />
+      </div>
 
       {/* Active filter chips */}
       <FilterChips />
