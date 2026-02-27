@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { FilterBar } from "@/components/filters/FilterBar";
 import { NLPSearchBox } from "@/components/filters/NLPSearchBox";
 import { ResultList } from "@/components/results/ResultList";
+import { ResultMapWrapper } from "@/components/results/ResultMapWrapper";
 import { useSearch } from "@/hooks/useSearch";
 import { useSearchStore } from "@/stores/searchStore";
 import { useAutoSearch } from "@/hooks/useAutoSearch";
@@ -61,17 +62,9 @@ export default function Home() {
               <ResultList onLoadMore={loadMore} />
             </div>
 
-            {/* Right: Map placeholder */}
-            <div className="hidden lg:flex min-h-[400px] max-h-[calc(100vh-280px)] rounded-xl border border-zinc-200 bg-gradient-to-br from-zinc-100 to-zinc-50 items-center justify-center sticky top-6">
-              <div className="text-center space-y-2 p-8">
-                <div className="w-12 h-12 rounded-full bg-zinc-200 flex items-center justify-center mx-auto">
-                  <span className="text-xl">🗺️</span>
-                </div>
-                <p className="text-sm font-medium text-zinc-500">Map coming soon</p>
-                <p className="text-xs text-zinc-400 max-w-[200px]">
-                  Interactive map with price pins will appear here in a future update.
-                </p>
-              </div>
+            {/* Right: Interactive map */}
+            <div className="hidden lg:block min-h-[400px] max-h-[calc(100vh-280px)] rounded-xl border border-zinc-200 overflow-hidden sticky top-6">
+              <ResultMapWrapper />
             </div>
           </div>
         ) : (
@@ -129,7 +122,7 @@ export default function Home() {
                     {[
                       { phase: "Phase 2", label: "Inline Airbnb results with source badges", status: "done" },
                       { phase: "Phase 2", label: "VRBO cross-search comparison", status: "done" },
-                      { phase: "Phase 3", label: "Interactive map with price pins", status: "up next" },
+                      { phase: "Phase 3", label: "Interactive map with price pins", status: "done" },
                       { phase: "Phase 3", label: "Price tracking & alerts", status: "planned" },
                       { phase: "Phase 4", label: "Saved searches with new listing diffs", status: "planned" },
                     ].map((item, i) => (

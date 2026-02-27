@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -123,4 +124,75 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ── Leaflet map overrides ── */
+
+/* Fix Leaflet container sizing within flex/grid layouts */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+  z-index: 0;
+}
+
+/* Hide default Leaflet attribution styling clutter */
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  padding: 2px 5px !important;
+}
+
+/* ── Price pin markers ── */
+.price-pin {
+  background: white;
+  color: #18181b;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e4e4e7;
+  white-space: nowrap;
+  text-align: center;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.price-pin::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid white;
+}
+
+.price-pin--hovered {
+  background: #f43f5e;
+  color: white;
+  border-color: #f43f5e;
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.4);
+  transform: scale(1.1);
+  z-index: 1000 !important;
+}
+
+.price-pin--hovered::after {
+  border-top-color: #f43f5e;
+}
+
+.price-pin--selected {
+  background: #e11d48;
+  color: white;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.3), 0 2px 8px rgba(225, 29, 72, 0.4);
+}
+
+.price-pin--selected::after {
+  border-top-color: #e11d48;
 }
