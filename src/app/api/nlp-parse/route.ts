@@ -26,17 +26,32 @@ ${JSON.stringify(CATEGORY_IDS)}
 
 ROOM TYPES (pick at most one): rt_entire, rt_private, rt_shared, rt_hotel
 
+OUTPUT JSON SHAPE (use these exact field names at the top level):
+{
+  "location": { "query": "City or Area" },
+  "dates": { "checkin": "YYYY-MM-DD", "checkout": "YYYY-MM-DD" },
+  "guests": { "adults": 2, "children": 0, "infants": 0, "pets": 0 },
+  "priceRange": { "min": 100, "max": 300 },
+  "selectedFilters": ["filter_id_1", "filter_id_2"],
+  "selectedCategories": ["cat_cabins"],
+  "roomType": "rt_entire",
+  "minBedrooms": 2,
+  "minBeds": 3,
+  "minBathrooms": 1,
+  "unmappedConstraints": ["anything you cannot map"]
+}
+
 RULES:
 1. Only use filter IDs and category IDs from the lists above. Never invent new ones.
 2. For location: extract the destination city/area as a string in "location.query". If the user says "near X" or "within N hours of X", just use X as the location query. Put the distance/travel constraint in unmappedConstraints.
-3. For dates: use YYYY-MM-DD format. If the user says "this weekend", calculate from today's date. If no dates mentioned, omit.
+3. For dates: use YYYY-MM-DD format in "checkin"/"checkout" (lowercase). If the user says "this weekend", calculate from today's date. If no dates mentioned, omit.
 4. For guests: "sleeps 4" means adults=4. "2 adults and 2 kids" means adults=2, children=2. Pets/infants only if mentioned.
 5. For price: extract min/max per night in USD. "under $200" = max=200. "$100-300" = min=100, max=300. "budget" ~ max=150. "luxury" ~ min=300.
-6. For room counts: "2 bedroom" = minBedrooms=2. "2 beds" = minBeds=2. "2 bath" = minBathrooms=2.
-7. For amenities: map user language to the closest filter ID. "jacuzzi"="hot_tub", "spa"="hot_tub", "grill"="bbq_grill", "parking"="free_parking", "ocean view"="waterfront", "ski access"="ski_in_out", "bbq"="bbq_grill", "internet"="wifi", "air con"="ac", "workspace"="dedicated_workspace".
-8. For property style: map to category IDs. "cabin"="cat_cabins", "treehouse"="cat_treehouses", "beachfront"="cat_beach", "lakehouse"="cat_lakefront", "farm"="cat_farms", "castle"="cat_castles", "tiny house"="cat_tiny_homes", "a-frame"="cat_a_frames", "luxury"="cat_luxe", "camping"="cat_camping", "dome"="cat_domes", "yurt"="cat_yurts", "houseboat"="cat_houseboats", "vineyard"="cat_vineyards", "desert"="cat_desert", "tropical"="cat_tropical", "ski"="cat_skiing", "surf"="cat_surfing".
+6. For room counts: use TOP-LEVEL fields minBedrooms, minBeds, minBathrooms (not nested). "four bedroom" = minBedrooms=4. "2 beds" = minBeds=2. "2 bath" = minBathrooms=2. Convert word numbers: one=1, two=2, three=3, four=4, five=5, six=6, seven=7, eight=8.
+7. For amenities: map user language to the closest filter ID in "selectedFilters". "jacuzzi"="hot_tub", "spa"="hot_tub", "grill"="bbq_grill", "parking"="free_parking", "ocean view"="waterfront", "ski access"="ski_in_out", "bbq"="bbq_grill", "internet"="wifi", "air con"="ac", "workspace"="dedicated_workspace".
+8. For property style: map to category IDs in "selectedCategories". "cabin"="cat_cabins", "treehouse"="cat_treehouses", "beachfront"="cat_beach", "lakehouse"="cat_lakefront", "farm"="cat_farms", "castle"="cat_castles", "tiny house"="cat_tiny_homes", "a-frame"="cat_a_frames", "luxury"="cat_luxe", "camping"="cat_camping", "dome"="cat_domes", "yurt"="cat_yurts", "houseboat"="cat_houseboats", "vineyard"="cat_vineyards", "desert"="cat_desert", "tropical"="cat_tropical", "ski"="cat_skiing", "surf"="cat_surfing".
 9. Room type: "entire place"="rt_entire", "private room"="rt_private", "shared room"="rt_shared", "hotel room"="rt_hotel", "whole house"="rt_entire", "own space"="rt_entire".
-10. If the user mentions something you cannot map to any filter (e.g., "walking distance to downtown", "ocean view", "quiet neighborhood", "within 1.5 hours"), put it in unmappedConstraints so the UI can show a note.
+10. If the user mentions something you cannot map to any filter (e.g., "walking distance to downtown", "quiet neighborhood", "within 1.5 hours"), put it in unmappedConstraints.
 11. "pet friendly" or "dog friendly" = add "allows_pets" to selectedFilters AND set guests.pets=1.
 12. Return ONLY the fields that are relevant. Do not include empty arrays or null fields. Omit fields entirely if not mentioned.
 
@@ -87,8 +102,13 @@ export async function POST(request: NextRequest) {
     const jsonStr = content.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
     const parsed = JSON.parse(jsonStr);
 
-    // Normalize date field casing — Claude may return checkIn/checkOut (camelCase)
-    // but our schema and Zustand store expect checkin/checkout (lowercase)
+    console.log("[nlp-parse] Raw AI response:", JSON.stringify(parsed));
+
+    // ── Normalize field names before Zod validation ──
+    // Claude may use different naming conventions than our schema expects.
+    // Zod silently strips unknown fields, so we normalize first.
+
+    // Dates: checkIn/checkOut → checkin/checkout
     if (parsed.dates) {
       if (parsed.dates.checkIn && !parsed.dates.checkin) {
         parsed.dates.checkin = parsed.dates.checkIn;
@@ -100,7 +120,59 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Room counts: Claude sometimes nests under "roomCounts" object
+    if (parsed.roomCounts && typeof parsed.roomCounts === "object") {
+      if (parsed.roomCounts.minBedrooms != null && parsed.minBedrooms == null) {
+        parsed.minBedrooms = parsed.roomCounts.minBedrooms;
+      }
+      if (parsed.roomCounts.minBeds != null && parsed.minBeds == null) {
+        parsed.minBeds = parsed.roomCounts.minBeds;
+      }
+      if (parsed.roomCounts.minBathrooms != null && parsed.minBathrooms == null) {
+        parsed.minBathrooms = parsed.roomCounts.minBathrooms;
+      }
+      // Also handle bedrooms/beds/bathrooms without "min" prefix
+      if (parsed.roomCounts.bedrooms != null && parsed.minBedrooms == null) {
+        parsed.minBedrooms = parsed.roomCounts.bedrooms;
+      }
+      if (parsed.roomCounts.beds != null && parsed.minBeds == null) {
+        parsed.minBeds = parsed.roomCounts.beds;
+      }
+      if (parsed.roomCounts.bathrooms != null && parsed.minBathrooms == null) {
+        parsed.minBathrooms = parsed.roomCounts.bathrooms;
+      }
+      delete parsed.roomCounts;
+    }
+
+    // Also handle top-level bedrooms/beds/bathrooms without "min" prefix
+    if (parsed.bedrooms != null && parsed.minBedrooms == null) {
+      parsed.minBedrooms = parsed.bedrooms;
+      delete parsed.bedrooms;
+    }
+    if (parsed.beds != null && parsed.minBeds == null) {
+      parsed.minBeds = parsed.beds;
+      delete parsed.beds;
+    }
+    if (parsed.bathrooms != null && parsed.minBathrooms == null) {
+      parsed.minBathrooms = parsed.bathrooms;
+      delete parsed.bathrooms;
+    }
+
+    // Categories: Claude sometimes uses "categories" instead of "selectedCategories"
+    if (parsed.categories && !parsed.selectedCategories) {
+      parsed.selectedCategories = parsed.categories;
+      delete parsed.categories;
+    }
+
+    // Filters: Claude sometimes uses "filters" instead of "selectedFilters"
+    if (parsed.filters && !parsed.selectedFilters) {
+      parsed.selectedFilters = parsed.filters;
+      delete parsed.filters;
+    }
+
     const validated = NLPResponseSchema.parse(parsed);
+
+    console.log("[nlp-parse] After normalization+validation:", JSON.stringify(validated));
 
     return NextResponse.json({
       success: true,

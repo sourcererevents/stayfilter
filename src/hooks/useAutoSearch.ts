@@ -14,6 +14,13 @@ export function useAutoSearch(debounceMs = 600) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRender = useRef(true);
 
+  // Store search in a ref so the effect doesn't depend on it.
+  // `search` from useSearch() is unstable because it depends on the whole
+  // search store — every setResults() call gives it a new identity, which
+  // would re-trigger this effect and cause an infinite search loop.
+  const searchRef = useRef(search);
+  searchRef.current = search;
+
   // Subscribe to the filter store — create a fingerprint of all filter state
   const location = useFilterStore((s) => s.location.query);
   const checkin = useFilterStore((s) => s.dates.checkin);
@@ -64,11 +71,14 @@ export function useAutoSearch(debounceMs = 600) {
     // Debounce the search
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
-      search();
+      searchRef.current();
     }, debounceMs);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [fingerprint, hasSearched, location, search, debounceMs]);
+    // NOTE: `search` is deliberately excluded — it's accessed via searchRef
+    // to prevent the search store's state changes from re-triggering this effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fingerprint, hasSearched, location, debounceMs]);
 }
