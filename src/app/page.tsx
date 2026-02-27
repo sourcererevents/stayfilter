@@ -2,6 +2,7 @@
 
 import { Header } from "@/components/layout/Header";
 import { FilterBar } from "@/components/filters/FilterBar";
+import { NLPSearchBox } from "@/components/filters/NLPSearchBox";
 import { ResultList } from "@/components/results/ResultList";
 import { useSearch } from "@/hooks/useSearch";
 import { useSearchStore } from "@/stores/searchStore";
@@ -40,6 +41,9 @@ export default function Home() {
             </p>
           </div>
         )}
+
+        {/* NLP natural language search */}
+        <NLPSearchBox />
 
         {/* Filter bar — always visible */}
         <FilterBar />

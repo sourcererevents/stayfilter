@@ -37,6 +37,18 @@ interface FilterStore {
   clearAllFilters: () => void;
   clearCategory: (filterIds: string[]) => void;
   getActiveFilterCount: () => number;
+  hydrateFromNLP: (data: {
+    location?: { query?: string };
+    dates?: { checkin?: string | null; checkout?: string | null };
+    guests?: Partial<GuestCounts>;
+    priceRange?: Partial<PriceRange>;
+    selectedFilters?: string[];
+    roomType?: string | null;
+    minBedrooms?: number;
+    minBeds?: number;
+    minBathrooms?: number;
+    selectedCategories?: string[];
+  }) => void;
 }
 
 const initialGuests: GuestCounts = { adults: 1, children: 0, infants: 0, pets: 0 };
@@ -128,4 +140,48 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
     count += state.selectedCategories.size;
     return count;
   },
+
+  hydrateFromNLP: (data) =>
+    set((state) => {
+      const updates: Partial<typeof state> = {};
+
+      if (data.location?.query) {
+        updates.location = { query: data.location.query };
+      }
+      if (data.dates) {
+        updates.dates = {
+          checkin: data.dates.checkin ?? state.dates.checkin,
+          checkout: data.dates.checkout ?? state.dates.checkout,
+        };
+      }
+      if (data.guests) {
+        updates.guests = { ...state.guests, ...data.guests };
+      }
+      if (data.priceRange) {
+        updates.priceRange = {
+          min: data.priceRange.min ?? state.priceRange.min,
+          max: data.priceRange.max ?? state.priceRange.max,
+        };
+      }
+      if (data.selectedFilters && data.selectedFilters.length > 0) {
+        updates.selectedFilters = new Set(data.selectedFilters);
+      }
+      if (data.roomType !== undefined) {
+        updates.roomType = data.roomType;
+      }
+      if (data.minBedrooms !== undefined) {
+        updates.minBedrooms = data.minBedrooms;
+      }
+      if (data.minBeds !== undefined) {
+        updates.minBeds = data.minBeds;
+      }
+      if (data.minBathrooms !== undefined) {
+        updates.minBathrooms = data.minBathrooms;
+      }
+      if (data.selectedCategories && data.selectedCategories.length > 0) {
+        updates.selectedCategories = new Set(data.selectedCategories);
+      }
+
+      return updates;
+    }),
 }));
