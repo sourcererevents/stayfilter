@@ -164,8 +164,9 @@ export function ResultList({ onLoadMore }: ResultListProps) {
     ? `Showing ${listings.length} of ~${totalCount}+ listings`
     : `${listings.length} listing${listings.length !== 1 ? "s" : ""} found`;
 
-  const breakdownStr = sourceBreakdown
-    ? ` (${sourceBreakdown.airbnb} Airbnb${sourceBreakdown.vrbo > 0 ? ` · ${sourceBreakdown.vrbo} VRBO` : ""})`
+  // Source breakdown only shown when VRBO results are available
+  const breakdownStr = sourceBreakdown && sourceBreakdown.vrbo > 0
+    ? ` (${sourceBreakdown.airbnb} Airbnb · ${sourceBreakdown.vrbo} VRBO)`
     : "";
 
   // ── Success / Partial: show results ──
