@@ -133,14 +133,11 @@ export function FilterBar() {
         )}
       </div>
 
-      {/* All Filters + Category scroller */}
-      <div className="flex items-center gap-3">
-        <FilterSheet />
-        <div className="h-6 w-px bg-zinc-200 shrink-0 hidden sm:block" />
-        <div className="flex-1 min-w-0">
-          <CategoryScroller />
-        </div>
-      </div>
+      {/* All Filters button */}
+      <FilterSheet />
+
+      {/* Category scroller */}
+      <CategoryScroller />
 
       {/* Active filter chips */}
       <FilterChips />
