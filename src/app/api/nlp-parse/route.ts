@@ -7,7 +7,8 @@ import {
 } from "@/lib/nlp-schema";
 
 function getApiKey(): string | undefined {
-  return process.env.ANTHROPIC_API_KEY;
+  // Use STAYFILTER_ANTHROPIC_KEY to avoid collision with Claude Code's ANTHROPIC_API_KEY
+  return process.env.STAYFILTER_ANTHROPIC_KEY || process.env.ANTHROPIC_API_KEY;
 }
 
 function getClient() {
@@ -55,7 +56,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!getApiKey()) {
+    const apiKey = getApiKey();
+    if (!apiKey) {
       return NextResponse.json(
         { error: "API key not configured" },
         { status: 500 },
