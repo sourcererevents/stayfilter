@@ -11,7 +11,6 @@ import {
   SheetTrigger,
   SheetFooter,
 } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -65,7 +64,7 @@ export function FilterSheet() {
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="w-full sm:w-[540px] sm:max-w-[540px] p-0 flex flex-col"
+        className="w-full sm:w-[540px] sm:max-w-[540px] !p-0 !gap-0 flex flex-col h-full overflow-hidden"
       >
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-zinc-100 space-y-4">
           <div className="flex items-center justify-between">
@@ -107,7 +106,7 @@ export function FilterSheet() {
           </div>
         </SheetHeader>
 
-        <ScrollArea className="flex-1">
+        <div className="flex-1 overflow-y-auto min-h-0">
           <div className="px-6 py-4">
             {/* Search results mode */}
             {searchQuery.length >= 2 ? (
@@ -174,7 +173,7 @@ export function FilterSheet() {
               </>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         <SheetFooter className="px-6 py-4 border-t border-zinc-100 bg-white gap-2">
           <Button
