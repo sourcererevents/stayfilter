@@ -86,6 +86,20 @@ export async function POST(request: NextRequest) {
     // Strip any markdown code fences if present
     const jsonStr = content.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
     const parsed = JSON.parse(jsonStr);
+
+    // Normalize date field casing — Claude may return checkIn/checkOut (camelCase)
+    // but our schema and Zustand store expect checkin/checkout (lowercase)
+    if (parsed.dates) {
+      if (parsed.dates.checkIn && !parsed.dates.checkin) {
+        parsed.dates.checkin = parsed.dates.checkIn;
+        delete parsed.dates.checkIn;
+      }
+      if (parsed.dates.checkOut && !parsed.dates.checkout) {
+        parsed.dates.checkout = parsed.dates.checkOut;
+        delete parsed.dates.checkOut;
+      }
+    }
+
     const validated = NLPResponseSchema.parse(parsed);
 
     return NextResponse.json({
