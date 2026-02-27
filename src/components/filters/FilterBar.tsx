@@ -133,8 +133,18 @@ export function FilterBar() {
         )}
       </div>
 
-      {/* All Filters button */}
-      <FilterSheet />
+      {/* All Filters */}
+      <div className="space-y-2">
+        <div className="flex items-baseline gap-2 px-1">
+          <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+            All Filters
+          </h3>
+          <p className="text-[11px] text-zinc-400">
+            Bedrooms, bathrooms, sauna, pool, EV charger, and 270+ more
+          </p>
+        </div>
+        <FilterSheet />
+      </div>
 
       {/* Category scroller */}
       <div className="space-y-2">
