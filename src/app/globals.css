@@ -134,6 +134,7 @@
   height: 100%;
   border-radius: 0.75rem;
   z-index: 0;
+  font-family: inherit;
 }
 
 /* Hide default Leaflet attribution styling clutter */
@@ -141,23 +142,25 @@
   font-size: 9px !important;
   background: rgba(255, 255, 255, 0.7) !important;
   padding: 2px 5px !important;
+  backdrop-filter: blur(4px);
 }
 
 /* ── Price pin markers ── */
 .price-pin {
   background: white;
   color: #18181b;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
   border-radius: 9999px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e4e4e7;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  border: 1.5px solid white;
   white-space: nowrap;
   text-align: center;
   transition: all 0.15s ease;
   cursor: pointer;
   position: relative;
+  letter-spacing: -0.01em;
 }
 
 .price-pin::after {
@@ -171,28 +174,180 @@
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-top: 5px solid white;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.08));
 }
 
 .price-pin--hovered {
-  background: #f43f5e;
+  background: #18181b;
   color: white;
-  border-color: #f43f5e;
-  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.4);
-  transform: scale(1.1);
+  border-color: #18181b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: scale(1.15);
   z-index: 1000 !important;
 }
 
 .price-pin--hovered::after {
-  border-top-color: #f43f5e;
+  border-top-color: #18181b;
 }
 
 .price-pin--selected {
   background: #e11d48;
   color: white;
   border-color: #e11d48;
-  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.3), 0 2px 8px rgba(225, 29, 72, 0.4);
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25), 0 4px 12px rgba(225, 29, 72, 0.3);
+  transform: scale(1.15);
 }
 
 .price-pin--selected::after {
   border-top-color: #e11d48;
+}
+
+/* ── Cluster pins ── */
+.cluster-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 13px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cluster-pin span {
+  position: relative;
+  z-index: 1;
+}
+
+.cluster-pin--sm {
+  width: 36px;
+  height: 36px;
+  background: rgba(244, 63, 94, 0.85);
+  border: 2.5px solid white;
+  font-size: 12px;
+}
+
+.cluster-pin--md {
+  width: 42px;
+  height: 42px;
+  background: rgba(225, 29, 72, 0.85);
+  border: 3px solid white;
+  font-size: 13px;
+}
+
+.cluster-pin--lg {
+  width: 50px;
+  height: 50px;
+  background: rgba(190, 18, 60, 0.9);
+  border: 3px solid white;
+  font-size: 14px;
+}
+
+.cluster-pin:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(225, 29, 72, 0.35);
+}
+
+/* Override default leaflet markercluster styles */
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background: transparent !important;
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+  background: transparent !important;
+}
+
+/* ── Map tooltip (listing preview) ── */
+
+/* Remove default leaflet tooltip chrome */
+.map-tooltip-container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.map-tooltip-container::before {
+  display: none !important;
+}
+
+.map-tooltip {
+  width: 220px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  font-family: inherit;
+}
+
+.map-tt-img {
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  background: #f4f4f5;
+}
+
+.map-tt-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.map-tt-body {
+  padding: 8px 10px 10px;
+}
+
+.map-tt-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #18181b;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.map-tt-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.map-tt-rating {
+  color: #18181b;
+  font-weight: 600;
+}
+
+.map-tt-reviews {
+  color: #a1a1aa;
+  font-weight: 400;
+}
+
+.map-tt-new {
+  color: #a1a1aa;
+  font-style: italic;
+  font-size: 10px;
+}
+
+.map-tt-price {
+  margin-left: auto;
+  font-weight: 700;
+  color: #18181b;
+  font-size: 12px;
+}
+
+.map-tt-qual {
+  font-weight: 400;
+  color: #71717a;
+  font-size: 10px;
 }

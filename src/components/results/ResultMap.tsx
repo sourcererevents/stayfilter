@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
+  Tooltip,
   useMap,
 } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import { useSearchStore } from "@/stores/searchStore";
 import type { Listing } from "@/types/listing";
@@ -26,7 +28,11 @@ function formatPrice(listing: Listing): string {
 }
 
 /** Create a Leaflet divIcon for a price pin */
-function priceDivIcon(label: string, isHovered: boolean, isSelected: boolean): L.DivIcon {
+function priceDivIcon(
+  label: string,
+  isHovered: boolean,
+  isSelected: boolean
+): L.DivIcon {
   const stateClass = isSelected
     ? "price-pin--selected"
     : isHovered
@@ -36,20 +42,65 @@ function priceDivIcon(label: string, isHovered: boolean, isSelected: boolean): L
   return L.divIcon({
     className: "", // clear default leaflet-div-icon class
     html: `<div class="price-pin ${stateClass}">${label}</div>`,
-    iconSize: [0, 0], // let CSS handle sizing
-    iconAnchor: [0, 0], // anchor at the arrow tip
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
   });
 }
 
+/** Create a custom cluster icon showing the listing count */
+function createClusterIcon(cluster: { getChildCount: () => number }): L.DivIcon {
+  const count = cluster.getChildCount();
+  let sizeClass = "cluster-pin--sm";
+  if (count >= 20) sizeClass = "cluster-pin--lg";
+  else if (count >= 5) sizeClass = "cluster-pin--md";
+
+  return L.divIcon({
+    className: "",
+    html: `<div class="cluster-pin ${sizeClass}"><span>${count}</span></div>`,
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+  });
+}
+
+/** Tooltip content as a React component */
+function TooltipContent({ listing }: { listing: Listing }) {
+  const img = listing.images[0]?.url;
+  return (
+    <div className="map-tooltip">
+      {img && (
+        <div className="map-tt-img">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={img} alt="" />
+        </div>
+      )}
+      <div className="map-tt-body">
+        <div className="map-tt-name">{listing.name}</div>
+        <div className="map-tt-meta">
+          {listing.rating !== null ? (
+            <span className="map-tt-rating">★ {listing.rating}</span>
+          ) : (
+            <span className="map-tt-new">New</span>
+          )}
+          {listing.reviewCount > 0 && (
+            <span className="map-tt-reviews">({listing.reviewCount})</span>
+          )}
+          <span className="map-tt-price">
+            {formatPrice(listing)}{" "}
+            <span className="map-tt-qual">{listing.price.qualifier}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Bounds fitter sub-component ──
-// Uses react-leaflet's useMap() hook to access the map instance
 
 function BoundsFitter({ listings }: { listings: Listing[] }) {
   const map = useMap();
 
   useEffect(() => {
     if (listings.length === 0) {
-      // Default view: North America
       map.setView([39.8, -98.5], 4);
       return;
     }
@@ -75,6 +126,7 @@ function PricePin({ listing }: { listing: Listing }) {
   const selectedId = useSearchStore((s) => s.selectedListingId);
   const setHovered = useSearchStore((s) => s.setHoveredListing);
   const setSelected = useSearchStore((s) => s.setSelectedListing);
+  const markerRef = useRef<L.Marker>(null);
 
   const isHovered = hoveredId === listing.id;
   const isSelected = selectedId === listing.id;
@@ -84,6 +136,17 @@ function PricePin({ listing }: { listing: Listing }) {
     () => priceDivIcon(priceLabel, isHovered, isSelected),
     [priceLabel, isHovered, isSelected]
   );
+
+  // Open tooltip programmatically when card is hovered in the list
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (!marker) return;
+    if (isHovered) {
+      marker.openTooltip();
+    } else {
+      marker.closeTooltip();
+    }
+  }, [isHovered]);
 
   const eventHandlers = useMemo(
     () => ({
@@ -99,12 +162,21 @@ function PricePin({ listing }: { listing: Listing }) {
 
   return (
     <Marker
+      ref={markerRef}
       position={[listing.lat, listing.lng]}
       icon={icon}
       eventHandlers={eventHandlers}
-      // Force z-index so hovered pins appear on top
       zIndexOffset={isHovered || isSelected ? 1000 : 0}
-    />
+    >
+      <Tooltip
+        direction="top"
+        offset={[0, -8]}
+        opacity={1}
+        className="map-tooltip-container"
+      >
+        <TooltipContent listing={listing} />
+      </Tooltip>
+    </Marker>
   );
 }
 
@@ -115,7 +187,6 @@ export default function ResultMap() {
 
   const mappable = useMemo(() => withCoords(listings), [listings]);
 
-  // Default center (North America) — gets overridden by BoundsFitter
   const defaultCenter: L.LatLngTuple = [39.8, -98.5];
 
   return (
@@ -126,16 +197,29 @@ export default function ResultMap() {
       style={{ width: "100%", height: "100%" }}
       zoomControl={true}
     >
+      {/* CartoDB Voyager — modern, clean tile style */}
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
       />
 
       <BoundsFitter listings={mappable} />
 
-      {mappable.map((listing) => (
-        <PricePin key={`${listing.source}-${listing.id}`} listing={listing} />
-      ))}
+      <MarkerClusterGroup
+        chunkedLoading
+        iconCreateFunction={createClusterIcon}
+        maxClusterRadius={50}
+        spiderfyOnMaxZoom={true}
+        showCoverageOnHover={false}
+        zoomToBoundsOnClick={true}
+        animate={true}
+        animateAddingMarkers={false}
+        disableClusteringAtZoom={16}
+      >
+        {mappable.map((listing) => (
+          <PricePin key={`${listing.source}-${listing.id}`} listing={listing} />
+        ))}
+      </MarkerClusterGroup>
     </MapContainer>
   );
 }
