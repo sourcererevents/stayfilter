@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import {
   NLPResponseSchema,
   FILTER_ID_MAP,
   CATEGORY_IDS,
 } from "@/lib/nlp-schema";
 
-// Support both naming conventions (OPENAI_API_KEY or OpenAI_Key)
 function getApiKey(): string | undefined {
-  return process.env.OPENAI_API_KEY || process.env.OpenAI_Key;
+  return process.env.ANTHROPIC_API_KEY;
 }
 
-function getOpenAIClient() {
-  return new OpenAI({ apiKey: getApiKey() });
+function getClient() {
+  return new Anthropic({ apiKey: getApiKey() });
 }
 
 const SYSTEM_PROMPT = `You are a search filter parser for a vacation rental search tool (Airbnb/VRBO).
@@ -42,7 +41,7 @@ RULES:
 
 Today's date is: ${new Date().toISOString().split("T")[0]}
 
-Respond with a JSON object matching the schema. Do not wrap in markdown code blocks.`;
+Respond with ONLY a valid JSON object. No markdown, no code blocks, no explanation.`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,24 +57,23 @@ export async function POST(request: NextRequest) {
 
     if (!getApiKey()) {
       return NextResponse.json(
-        { error: "OpenAI API key not configured" },
+        { error: "API key not configured" },
         { status: 500 },
       );
     }
 
-    const openai = getOpenAIClient();
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const client = getClient();
+    const response = await client.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 1024,
+      system: SYSTEM_PROMPT,
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: query.trim() },
       ],
-      response_format: { type: "json_object" },
-      temperature: 0.1,
-      max_tokens: 500,
     });
 
-    const content = completion.choices[0]?.message?.content;
+    const textBlock = response.content.find((block) => block.type === "text");
+    const content = textBlock?.text;
     if (!content) {
       return NextResponse.json(
         { error: "No response from AI" },
@@ -83,16 +81,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const parsed = JSON.parse(content);
+    // Strip any markdown code fences if present
+    const jsonStr = content.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
+    const parsed = JSON.parse(jsonStr);
     const validated = NLPResponseSchema.parse(parsed);
 
     return NextResponse.json({
       success: true,
       filters: validated,
       tokenUsage: {
-        prompt: completion.usage?.prompt_tokens,
-        completion: completion.usage?.completion_tokens,
-        total: completion.usage?.total_tokens,
+        input: response.usage?.input_tokens,
+        output: response.usage?.output_tokens,
       },
     });
   } catch (err) {
