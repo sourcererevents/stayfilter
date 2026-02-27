@@ -16,7 +16,7 @@ interface NLPParseResult {
   error?: string;
 }
 
-export function useNLPSearch() {
+export function useNLPSearch(onSuccess?: () => void) {
   const [state, setState] = useState<NLPSearchState>({
     isLoading: false,
     error: null,
@@ -65,6 +65,9 @@ export function useNLPSearch() {
           error: null,
           unmappedConstraints: result.filters.unmappedConstraints || [],
         });
+
+        // Auto-trigger search after successful parse
+        onSuccess?.();
       } catch (err) {
         setState({
           isLoading: false,
@@ -73,7 +76,7 @@ export function useNLPSearch() {
         });
       }
     },
-    [hydrateFromNLP, clearAllFilters],
+    [hydrateFromNLP, clearAllFilters, onSuccess],
   );
 
   const clearError = useCallback(() => {

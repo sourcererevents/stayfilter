@@ -6,6 +6,7 @@ import { NLPSearchBox } from "@/components/filters/NLPSearchBox";
 import { ResultList } from "@/components/results/ResultList";
 import { useSearch } from "@/hooks/useSearch";
 import { useSearchStore } from "@/stores/searchStore";
+import { useAutoSearch } from "@/hooks/useAutoSearch";
 import { TOTAL_FILTER_COUNT } from "@/data/filters";
 import {
   Sparkles,
@@ -18,6 +19,9 @@ export default function Home() {
   const { loadMore } = useSearch();
   const hasSearched = useSearchStore((s) => s.hasSearched);
   const status = useSearchStore((s) => s.status);
+
+  // Auto-search when filters change (after first search)
+  useAutoSearch(600);
 
   const showResults = hasSearched || status === "loading";
 

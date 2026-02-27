@@ -4,11 +4,13 @@ import { useState, type KeyboardEvent } from "react";
 import { Sparkles, Loader2, AlertCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNLPSearch } from "@/hooks/useNLPSearch";
+import { useSearch } from "@/hooks/useSearch";
 
 export function NLPSearchBox() {
   const [inputValue, setInputValue] = useState("");
+  const { search } = useSearch();
   const { parseQuery, clearError, isLoading, error, unmappedConstraints } =
-    useNLPSearch();
+    useNLPSearch(search);
 
   function handleSubmit() {
     if (inputValue.trim().length >= 3 && !isLoading) {
