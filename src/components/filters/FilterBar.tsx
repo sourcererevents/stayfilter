@@ -133,6 +133,9 @@ export function FilterBar() {
         )}
       </div>
 
+      {/* Active filter chips */}
+      <FilterChips />
+
       {/* All Filters */}
       <div className="space-y-2">
         <div className="flex items-baseline gap-2 px-1">
@@ -153,9 +156,6 @@ export function FilterBar() {
         </h3>
         <CategoryScroller />
       </div>
-
-      {/* Active filter chips */}
-      <FilterChips />
     </div>
   );
 }
