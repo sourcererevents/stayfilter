@@ -37,6 +37,8 @@ export interface FilterGroup {
 export interface LocationState {
   query: string;
   placeId?: string;
+  lat?: number;
+  lon?: number;
 }
 
 export interface DateRange {

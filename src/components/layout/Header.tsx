@@ -23,7 +23,7 @@ export function Header() {
         <div className="hidden sm:flex items-center gap-4 text-sm text-zinc-500">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 bg-emerald-400 rounded-full" />
-            Phase 1 — URL Builder
+            Phase 2 — Inline Results
           </span>
         </div>
       </div>

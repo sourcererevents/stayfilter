@@ -84,6 +84,8 @@ export function LocationSearch() {
     setLocation({
       query: suggestion.shortName,
       placeId: suggestion.placeId,
+      lat: parseFloat(suggestion.lat),
+      lon: parseFloat(suggestion.lon),
     });
     setIsFocused(false);
     setIsTyping(false);
