@@ -1,6 +1,7 @@
 "use client";
 
-import { Compass } from "lucide-react";
+import { Compass, Heart } from "lucide-react";
+import { DONATE_URL } from "./DonatePopup";
 
 export function Header() {
   return (
@@ -20,12 +21,15 @@ export function Header() {
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-4 text-sm text-zinc-500">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 bg-emerald-400 rounded-full" />
-            Phase 2 — Inline Results
-          </span>
-        </div>
+        <a
+          href={DONATE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden sm:flex items-center gap-1.5 text-sm text-zinc-400 hover:text-rose-500 transition-colors"
+        >
+          <Heart className="w-3.5 h-3.5" />
+          <span>Support</span>
+        </a>
       </div>
     </header>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { Header } from "@/components/layout/Header";
+import { DonatePopup } from "@/components/layout/DonatePopup";
 import { FilterBar } from "@/components/filters/FilterBar";
 import { NLPSearchBox } from "@/components/filters/NLPSearchBox";
 import { ResultList } from "@/components/results/ResultList";
@@ -29,6 +30,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-white">
       <Header />
+      <DonatePopup />
 
       <main className={`mx-auto px-4 sm:px-6 py-6 sm:py-10 ${showResults ? "max-w-[1400px]" : "max-w-[1200px] space-y-8"}`}>
         {/* Hero — only show when no results */}
